@@ -2,7 +2,6 @@ import React from 'react';
 import Router from 'react-router';
 import component from 'omniscient';
 
-import state from './state';
 import App from './components/app';
 import Dashboard from './components/dashboard';
 import Content from './components/content';
@@ -16,40 +15,16 @@ var routes = (
 
     <Router.Route name='content' path='/content' handler={Content}>
       <Router.DefaultRoute name='content-a' handler={ContentA} />
-      <Router.Route name='content-b' path='/content-b' handler={ContentB} />
+      <Router.Route name='content-b' path='/content-b/:id' handler={ContentB} />
     </Router.Route>
 
   </Router.Route>
 );
 
-var rerender = (state, element) => {
-
-  var Handler;
-
-  var listen = (H, route_state) => {
-
-    if (H) {
-      Handler = H;
-    }
-
-    state.cursor().update('active_route', () => {
-      return {
-        path: route_state.path,
-        params: {}
-      };
-    });
-
-  };
-
-  var render = () => {
-    return React.render(<Handler cursor={state.cursor()} />, element);
-  };
-
-  state.on('swap', () => render());
-
-  return listen;
-
+var render = (Handler, state) => {
+  React.render(<Handler route_state={state}/>, document.body);
 };
 
-Router.run(routes, rerender(state, document.body));
-console.log(Router);
+//component.debug();
+
+Router.run(routes, render);

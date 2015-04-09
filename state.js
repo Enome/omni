@@ -5,6 +5,7 @@ var state = immstruct({
   active_route: {
     name: '',
     params: {},
+    query: {},
   },
 
   input: 'foo',
