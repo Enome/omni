@@ -2,24 +2,55 @@ import R from 'ramda';
 import React from 'react';
 import component from 'omniscient';
 import Router from 'react-router';
-import { fromJS } from 'immutable';
+import { fromJS, is } from 'immutable';
 import state from '../state';
 
 var mixin = {
 
   /* HELPERS */
 
+  // Routes
+
   getActiveRoute (route_state) {
     var name = R.last(route_state.routes).name;
     var params = route_state.params;
-    var query = route_state.query;
-    return fromJS({ name, params, query });
+    return fromJS({ name, params });
   },
 
   setActiveRouteState (route_state) {
     state
-      .cursor('active_route')
+      .cursor(['browser', 'url'])
       .update(() => this.getActiveRoute(route_state));
+  },
+
+
+  // Mouse
+
+  getMouseCords (event) {
+    return { x: event.pageX, y: event.pageY };
+  },
+
+  setMouseState (event) {
+    
+    state
+      .cursor(['browser', 'mouse'])
+      .update(() => this.getMouseCords(event));
+
+  },
+
+  
+  // Scroll
+
+  getScrollCords (event) {
+    return fromJS({ x: window.pageXOffset, y: window.pageYOffset });
+  },
+
+  setScrollState (event) {
+    
+    state
+      .cursor(['browser', 'scroll'])
+      .update(() => this.getScrollCords(event));
+
   },
 
   /* CONTEXT */
@@ -31,10 +62,33 @@ var mixin = {
   /* LIFECYCLE EVENTS */
 
   componentDidMount () {
-    state.on('swap', (new_struct, old_struct) => {
-      var { name, params } = new_struct.toJS().active_route;
-      this.context.router.transitionTo(name, params);
+
+    var browser_url_path = ['browser', 'url'];
+    var browser_scroll_path = ['browser', 'scroll'];
+
+    // MOUSE
+    document.addEventListener('mousemove', this.setMouseState);
+
+    // SCROLL
+    window.addEventListener('scroll', this.setScrollState);
+
+    // RERENDER
+    state.on('swap', (next_struct, current_struct) => {
+
+      if (!is(next_struct.getIn(browser_url_path), current_struct.getIn(browser_url_path))) {
+        var { name, params } = next_struct.getIn(browser_url_path).toJS();
+        this.context.router.transitionTo(name, params);
+      }
+
+      if (!is(next_struct.getIn(browser_scroll_path), current_struct.getIn(browser_scroll_path))) {
+        var { x, y } = next_struct.getIn(browser_scroll_path).toJS();
+        window.scrollTo(x, y);
+      }
+
+      this.forceUpdate();
+
     });  
+
   },
 
   componentWillMount () {

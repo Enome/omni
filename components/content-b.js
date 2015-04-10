@@ -1,12 +1,19 @@
 import React from 'react';
 import component from 'omniscient';
 
-var Component = component('ContentB', (props) => {
+var Component = component('ContentB', ({cursor}) => {
+
+  var onChange = (e) => {
+    cursor.cursor('input').update((val) => e.target.value);
+  };
+
+  var input = cursor.get('input');
 
   return (
     <div>
       <p>This is the content for page B</p>
-      {props.input}
+      {input}
+      <input value={input} onChange={onChange} />
     </div>
   );
 

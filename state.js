@@ -2,10 +2,23 @@ import immstruct from 'immstruct';
 
 var state = immstruct({
 
-  active_route: {
-    name: '',
-    params: {},
-    query: {},
+  browser: {
+
+    url: {
+      name: '',
+      params: {},
+    },
+
+    mouse: { 
+      x: 0, 
+      y: 0,
+    },
+
+    scroll: {
+      y: 0,
+      x: 0
+    },
+
   },
 
   input: 'foo',

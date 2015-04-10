@@ -6,7 +6,6 @@ var Component = component('ContentA', (props) => {
   return (
     <div>
       <p>This is the content for page A</p>
-      {props.input}
     </div>
   );
 

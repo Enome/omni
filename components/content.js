@@ -4,19 +4,19 @@ import Router from 'react-router';
 import { fromJS } from 'immutable';
 
 var mixin = {
-
-  navigate: (cursor) => (event) => {
-
+  navigate: (cursor, name, params) => (event) => {
     cursor
-      .cursor('active_route')
-      .update(() => fromJS({
-        name: 'content-b',
-        params: { id: '321' },
-        query: {}
-      }));
-
+      .cursor(['browser', 'url'])
+      .update(() => fromJS({ name, params }));
   },
 
+  scroll: (cursor, x, y) => (event) => {
+
+    cursor
+      .cursor(['browser', 'scroll'])
+      .update(() => fromJS({ x, y }));
+
+  },
 };
 
 var Component = component('Content', mixin, function ({cursor}) {
@@ -26,11 +26,20 @@ var Component = component('Content', mixin, function ({cursor}) {
       <Router.Link to='content-a'>Content A</Router.Link>
       <Router.Link to='content-b' params={{ id: 1234 }}>Content B</Router.Link>
 
-      <div onClick={this.navigate(cursor)}>Manual Content B</div>
+      <div onClick={this.navigate(cursor, 'content-a', {})}>
+        Navigate to <strong>Content A</strong> by updating state.
+      </div>
 
-      <h2>Content {cursor.get('active_route').path}</h2>
+      <div onClick={this.navigate(cursor, 'content-b', { id: '321' })}>
+        Navigate to <strong>Content B</strong> by updating state.
+      </div>
 
-      <Router.RouteHandler input={cursor.get('input')} />
+      <h2>Content</h2>
+
+      <Router.RouteHandler cursor={cursor} />
+
+      <button onClick={this.scroll(cursor, 0, 0)}>Scroll Up</button>
+
     </div>
   );
 
